@@ -1,0 +1,259 @@
+/* Charity: water Brand Colors
+
+Primary Colors:
+- Yellow:     #FFC907
+- Blue:       #2E9DF7
+
+Secondary Colors:
+- Light Blue: #8BD1CB
+- Green:      #4FCB53
+- Orange:     #FF902A
+- Red:        #F5402C
+- Dark Green: #159A48
+- Pink:       #F16061
+
+*/
+
+/* Water Word Game Styles */
+
+:root {
+  /* Color palette */
+  --correct: #2E9DF7;   /* blue */
+  --present: #8BD1CB;   /* teal */
+  --absent: #b0b0b0;    /* gray */
+  --default: #f0f0f0;   /* light gray */
+  --tile-border: #ccc;
+  --text: #222;
+  --modal-bg: #fff;
+  --modal-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f8fafc;
+  color: var(--text);
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  text-align: center;
+  margin-top: 24px;
+}
+
+#day-number {
+  font-size: 1.1rem;
+  color: var(--correct);
+  margin-top: 4px;
+}
+
+main {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 16px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Game board styles */
+#game-board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.board-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.board-cell {
+  width: 48px;
+  height: 48px;
+  background: var(--default);
+  border: 2px solid var(--tile-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: background 0.2s, border 0.2s, color 0.2s;
+  box-sizing: border-box;
+}
+
+/* Keyboard styles */
+#keyboard {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  user-select: none;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.key {
+  background: var(--default);
+  border: 1px solid var(--tile-border);
+  border-radius: 6px;
+  padding: 12px 10px;
+  min-width: 36px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+}
+.key:hover {
+  background: #e0e7ef;
+}
+.key:active {
+  background: var(--present);
+  color: #fff;
+}
+#enter-key, #delete-key {
+  min-width: 70px; /* Make both keys wide enough for text */
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Modal styles */
+#modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.2);
+  z-index: 100;
+}
+#modal.hidden {
+  display: none;
+}
+#modal-content {
+  background: var(--modal-bg);
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: var(--modal-shadow);
+  text-align: center;
+  max-width: 90vw;
+}
+#close-modal {
+  margin-top: 16px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  background: var(--correct);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+#close-modal:hover {
+  background: var(--present);
+}
+
+/* Responsive styles */
+@media (max-width: 500px) {
+  main, #keyboard {
+    max-width: 98vw;
+  }
+  .board-cell {
+    width: 36px;
+    height: 36px;
+    font-size: 1.3rem;
+  }
+  #modal-content {
+    padding: 18px 6px;
+  }
+  #enter-key, #delete-key {
+    min-width: 48px;
+    font-size: 0.9rem;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* Add tile background and text colors */
+.correct {
+  background-color: var(--correct);
+  color: white;
+  border-color: var(--correct);
+}
+
+.present {
+  background-color: var(--present);
+  color: white;
+  border-color: var(--present);
+}
+
+.absent {
+  background-color: var(--absent);
+  color: white;
+  border-color: var(--absent);
+}
+
+/* Optional: make keys reflect status too */
+.key.correct {
+  background-color: var(--correct);
+  color: white;
+  border-color: var(--correct);
+}
+
+.key.present {
+  background-color: var(--present);
+  color: white;
+  border-color: var(--present);
+}
+
+.key.absent {
+  background-color: var(--absent);
+  color: white;
+  border-color: var(--absent);
+}
+
+/* Water can icon in the top left corner (not floating, just sits in the corner) */
+#water-can-icon {
+  margin: 0 8px 0 0;
+  width: 48px;
+  height: auto;
+}
+
+.modal-btn {
+  padding: 10px 16px;
+  min-width: 150px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  background: var(--correct);
+  color: #fff;
+  transition: background 0.2s;
+  text-align: center;
+}
+
+.modal-btn:hover {
+  background: var(--present);
+}
+
+.modal-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
