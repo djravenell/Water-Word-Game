@@ -29,8 +29,9 @@ Secondary Colors:
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background: #f8fafc;
+  font-family: 'Open Sans', sans-serif;
+  /* background: #f8fafc; */
+  background: linear-gradient(to bottom, #e0f7fa, #ffffff);
   color: var(--text);
   margin: 0;
   min-height: 100vh;
@@ -48,6 +49,7 @@ header {
   font-size: 1.1rem;
   color: var(--correct);
   margin-top: 4px;
+  font-weight: 600;
 }
 
 main {
@@ -119,7 +121,9 @@ main {
   transition: background 0.15s, color 0.15s, border 0.15s;
 }
 .key:hover {
-  background: #e0e7ef;
+  background: #c0ecf3;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
 }
 .key:active {
   background: var(--present);
@@ -164,6 +168,40 @@ main {
 }
 #close-modal:hover {
   background: var(--present);
+}
+
+/* Style the expanded fact and add a smooth transition */
+#expanded-fact {
+  display: none;
+  margin-top: 10px;
+  font-style: italic;
+  color: #555;
+  transition: all 0.3s;
+}
+
+#expanded-fact.visible {
+  display: block;
+}
+
+/* Style the footer */
+#footer {
+  margin-top: 40px;
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+  background-color: #f0f8fb;
+  border-top: 1px solid #ccc;
+}
+
+#footer a {
+  color: #2E9DF7;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#footer a:hover {
+  text-decoration: underline;
 }
 
 /* Responsive styles */
@@ -228,8 +266,10 @@ main {
 /* Water can icon in the top left corner (not floating, just sits in the corner) */
 #water-can-icon {
   margin: 0 8px 0 0;
-  width: 48px;
+  width: 40px;
   height: auto;
+  vertical-align: middle;
+  margin-left: 8px;
 }
 
 .modal-btn {
@@ -256,4 +296,9 @@ main {
   gap: 12px;
   margin-top: 16px;
   flex-wrap: wrap;
+}
+
+/* Use bold or semi-bold weights for headings to improve hierarchy and match branding */
+h1, h2, h3 {
+  font-weight: 700;
 }

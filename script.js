@@ -9,15 +9,28 @@ const deleteKey = document.getElementById('delete-key');
 const boardRows = document.querySelectorAll('.board-row');
 
 // Game config
-const NUM_ROWS = 6;
+let difficulty = localStorage.getItem('difficulty') || 'normal';
+document.getElementById('difficulty').value = difficulty;
+document.getElementById('difficulty').addEventListener('change', function () {
+  difficulty = this.value;
+  localStorage.setItem('difficulty', difficulty);
+  location.reload();
+});
+
+let NUM_ROWS = (difficulty === 'hard') ? 4 : 6;
 const NUM_COLS = 5;
-const correctWord = 'WATER';
 let currentRow = 0;
 let currentGuess = [];
 let guesses = [];
+
+// Array of 5 water-related 5-letter words
+const wordList = ['WATER', 'RIVER', 'OCEAN', 'WELLS', 'DROPS'];
+
+// Pick a random word from the list for this game
+const correctWord = wordList[Math.floor(Math.random() * wordList.length)];
+
 let gameOver = false;
 
-// Water facts for modal
 const waterFacts = [
   'Did you know? Only 3% of the world\'s water is fresh water.',
   'Unsafe water kills more people each year than all forms of violence, including war.',
@@ -26,16 +39,49 @@ const waterFacts = [
   'Access to clean water can improve health, education, and income.'
 ];
 
-// Update the board with current guess
+const waterStory = `
+  <strong>Meet Amina:</strong> Amina used to walk hours each day to collect water for her family. 
+  After her village received a clean water well, she could go to school and spend more time with friends. 
+  Clean water changed her life!
+`;
+
+function applyEasyHints() {
+  const hintIndices = [0, 2];
+  const firstRowCells = boardRows[0].querySelectorAll('.board-cell');
+  hintIndices.forEach(i => {
+    const letter = correctWord[i];
+    currentGuess[i] = letter;
+    firstRowCells[i].textContent = letter;
+    firstRowCells[i].classList.add('correct');
+  });
+}
+
+function getRequiredLetters() {
+  if (currentRow === 0) return [];
+  const prevGuess = guesses[currentRow - 1];
+  const prevCells = boardRows[currentRow - 1].querySelectorAll('.board-cell');
+  let required = [];
+  for (let i = 0; i < NUM_COLS; i++) {
+    if (
+      prevCells[i].classList.contains('correct') ||
+      prevCells[i].classList.contains('present')
+    ) {
+      required.push(prevGuess[i]);
+    }
+  }
+  return required;
+}
+
 function updateBoard() {
   const cells = boardRows[currentRow].querySelectorAll('.board-cell');
   for (let i = 0; i < NUM_COLS; i++) {
-    cells[i].textContent = currentGuess[i] || '';
-    cells[i].classList.remove('correct', 'present', 'absent');
+    if (!(difficulty === 'easy' && currentRow === 0 && (i === 0 || i === 2))) {
+      cells[i].textContent = currentGuess[i] || '';
+      cells[i].classList.remove('correct', 'present', 'absent');
+    }
   }
 }
 
-// Color the keyboard keys
 function colorKey(letter, result) {
   keys.forEach(key => {
     if (key.textContent === letter) {
@@ -52,7 +98,6 @@ function colorKey(letter, result) {
   });
 }
 
-// Check the current guess
 function checkGuess() {
   const guess = currentGuess.join('');
   const guessUpper = guess.toUpperCase();
@@ -64,7 +109,6 @@ function checkGuess() {
   let guessLetters = guessUpper.split('');
   let letterResults = Array(NUM_COLS).fill('absent');
 
-  // First pass: exact matches
   for (let i = 0; i < NUM_COLS; i++) {
     if (guessLetters[i] === correctLetters[i]) {
       letterResults[i] = 'correct';
@@ -73,7 +117,6 @@ function checkGuess() {
     }
   }
 
-  // Second pass: present letters
   for (let i = 0; i < NUM_COLS; i++) {
     if (letterResults[i] === 'correct') continue;
     const idx = correctLetters.indexOf(guessLetters[i]);
@@ -83,7 +126,6 @@ function checkGuess() {
     }
   }
 
-  // Apply results to tiles and keys
   for (let i = 0; i < NUM_COLS; i++) {
     cells[i].classList.add(letterResults[i]);
     colorKey(guessLetters[i], letterResults[i]);
@@ -92,7 +134,6 @@ function checkGuess() {
   return correctCount === NUM_COLS;
 }
 
-// Show the modal
 function showStatusModal(message) {
   const modal = document.getElementById('modal');
   const modalMessage = document.getElementById('modal-message');
@@ -100,11 +141,27 @@ function showStatusModal(message) {
   const fact = waterFacts[Math.floor(Math.random() * waterFacts.length)];
 
   modalMessage.textContent = message;
-  waterFact.innerHTML = `${fact} <br><a href="https://www.charitywater.org/" target="_blank">Learn more at charity: water</a>`;
+  waterFact.textContent = fact;
+
+  const expandedFact = document.getElementById('expanded-fact');
+  const toggleStoryBtn = document.getElementById('toggle-story');
+  if (expandedFact && toggleStoryBtn) {
+    expandedFact.classList.remove('visible');
+    toggleStoryBtn.textContent = 'Learn more';
+    toggleStoryBtn.onclick = function () {
+      if (expandedFact.classList.contains('visible')) {
+        expandedFact.classList.remove('visible');
+        toggleStoryBtn.textContent = 'Learn more';
+      } else {
+        expandedFact.classList.add('visible');
+        toggleStoryBtn.textContent = 'Hide story';
+      }
+    };
+  }
+
   modal.classList.remove('hidden');
 }
 
-// Add modal buttons
 const modalContent = document.getElementById('modal-content');
 if (modalContent) {
   const playAgainBtn = document.createElement('button');
@@ -125,7 +182,6 @@ if (modalContent) {
     setTimeout(() => { shareBtn.textContent = 'Share'; }, 1500);
   };
 
-  // Add buttons if not already present
   if (!document.getElementById('play-again')) {
     const btnWrapper = document.createElement('div');
     btnWrapper.className = 'modal-button-group';
@@ -135,7 +191,6 @@ if (modalContent) {
   }
 }
 
-// Close modal
 const closeModalBtn = document.getElementById('close-modal');
 if (closeModalBtn) {
   closeModalBtn.onclick = () => {
@@ -143,8 +198,21 @@ if (closeModalBtn) {
   };
 }
 
-// Handle pressing Enter
 function handleEnter() {
+  if (difficulty === 'hard' && guesses.length > 0) {
+    const prevGuess = guesses[guesses.length - 1];
+    const prevCells = boardRows[currentRow - 1].querySelectorAll('.board-cell');
+
+    for (let i = 0; i < NUM_COLS; i++) {
+      const prevLetter = prevGuess[i];
+      const wasHint = prevCells[i].classList.contains('correct') || prevCells[i].classList.contains('present');
+      if (wasHint && !currentGuess.includes(prevLetter)) {
+        alert(`Hard mode: you must reuse letter "${prevLetter}"`);
+        return;
+      }
+    }
+  }
+
   if (currentGuess.length === NUM_COLS && !gameOver) {
     guesses.push(currentGuess.join(''));
     const isCorrect = checkGuess();
@@ -152,8 +220,6 @@ function handleEnter() {
     if (isCorrect) {
       gameOver = true;
       showStatusModal('You got it! 🎉');
-
-      // 🎉 Confetti trigger on win
       if (typeof confetti === 'function') {
         confetti({
           particleCount: 200,
@@ -173,23 +239,45 @@ function handleEnter() {
   }
 }
 
-// Handle typing letters
 function handleLetter(letter) {
-  if (currentGuess.length < NUM_COLS) {
-    currentGuess.push(letter);
-    updateBoard();
+  if (gameOver || currentGuess.length >= NUM_COLS) return;
+
+  if (difficulty === 'easy' && currentRow === 0) {
+    const hintIndices = [0, 2];
+    let nextIndex = currentGuess.findIndex((val, i) => !val && !hintIndices.includes(i));
+    if (nextIndex === -1) {
+      for (let i = 0; i < NUM_COLS; i++) {
+        if (!currentGuess[i] && !hintIndices.includes(i)) {
+          nextIndex = i;
+          break;
+        }
+      }
+    }
+    if (nextIndex !== -1) {
+      currentGuess[nextIndex] = letter;
+      updateBoard();
+    }
+  } else {
+    for (let i = 0; i < NUM_COLS; i++) {
+      if (!currentGuess[i]) {
+        currentGuess[i] = letter;
+        updateBoard();
+        break;
+      }
+    }
   }
 }
 
-// Handle delete
 function handleDelete() {
-  if (currentGuess.length > 0) {
-    currentGuess.pop();
-    updateBoard();
+  for (let i = NUM_COLS - 1; i >= 0; i--) {
+    if (currentGuess[i] && !(difficulty === 'easy' && currentRow === 0 && (i === 0 || i === 2))) {
+      currentGuess[i] = undefined;
+      updateBoard();
+      break;
+    }
   }
 }
 
-// Key event listeners
 keys.forEach(key => {
   key.addEventListener('click', function () {
     if (gameOver) return;
@@ -199,9 +287,15 @@ keys.forEach(key => {
     } else if (value === 'Delete') {
       handleDelete();
     } else {
-      if (currentGuess.length < NUM_COLS && currentRow < NUM_ROWS) {
+      if (currentRow < NUM_ROWS) {
         handleLetter(value);
       }
     }
   });
 });
+
+// Apply easy mode hints after page reload if in easy mode
+if (difficulty === 'easy') {
+  applyEasyHints();
+  updateBoard();
+}
